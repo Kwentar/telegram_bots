@@ -11,15 +11,16 @@ def read_info(file_name='images_info.csv'):
 
 def generate_image(images_info, image, message, font_path="OpenSans-Semibold.ttf"):
     left, top, right, bottom, anchor_x, anchor_y, r, g, b = images_info.loc[image].to_numpy()
+    bubble_color = (255, 255, 255)
     x, y = left + (right-left)//2, top + (bottom-top)//2
     img = cv2.imread(os.path.join('images', image))
 
     # main bubble
-    cv2.ellipse(img, (x, y), ((right-left)//2, (bottom-top)//2), 0, 0, 360, (255, 255, 255), -1)
+    cv2.ellipse(img, (x, y), ((right-left)//2, (bottom-top)//2), 0, 0, 360, bubble_color, -1)
 
     # speech triangle
     triangle_cnt = np.array([(x, y), (x, top), (anchor_x, anchor_y)])
-    cv2.drawContours(img, [triangle_cnt], 0, (255, 255, 255), -1)
+    cv2.drawContours(img, [triangle_cnt], 0, bubble_color, -1)
     r, g, b = map(int, [r, g, b])
 
     # Text part
