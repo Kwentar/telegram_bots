@@ -1,6 +1,6 @@
 import threading
 from queue import PriorityQueue
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 from notifier.speech_bubble import generate_image
@@ -13,6 +13,7 @@ class Chat:
     def __init__(self, updater, chat_id):
         self.q = PriorityQueue()
         self.chat_id = chat_id
+        self.minutes_delta = -60
         self.logger = get_logger(f'Chat {chat_id}')
         self.thread = threading.Thread(target=Chat.chat_thread,
                                        kwargs={'updater': updater,
@@ -24,7 +25,7 @@ class Chat:
     def add_event(self, parsing_result: ParsingResult):
         self.logger.info(f'added event {parsing_result}')
 
-        self.q.put((parsing_result.datetime, parsing_result.message))
+        self.q.put((parsing_result.datetime - timedelta(minutes=self.minutes_delta), parsing_result.message))
 
     @staticmethod
     def chat_thread(updater, user_queue: PriorityQueue, chat_id, logger):
