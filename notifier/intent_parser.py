@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from notifier.utils import *
 
 logger = get_logger('intent parser')
