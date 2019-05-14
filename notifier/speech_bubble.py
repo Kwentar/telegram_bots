@@ -9,7 +9,7 @@ def generate_image(images_info, image, message, font_path="OpenSans-Semibold.ttf
     left, top, right, bottom, anchor_x, anchor_y, r, g, b = images_info.loc[image].to_numpy()
     bubble_color = (255, 255, 255)
     x, y = left + (right-left)//2, top + (bottom-top)//2
-    img = cv2.imread(os.path.join('images', image))
+    img = cv2.imread(os.path.join('notifier/images', image))
 
     # main bubble
     cv2.ellipse(img, (x, y), ((right-left)//2, (bottom-top)//2), 0, 0, 360, bubble_color, -1)

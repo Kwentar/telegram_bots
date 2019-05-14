@@ -8,7 +8,7 @@ from notifier.utils import read_info, ParsingResult, get_logger
 
 
 class Chat:
-    images_info = read_info(file_name='resources/images_info.csv')
+    images_info = read_info(file_name='notifier/resources/images_info.csv')
 
     def __init__(self, updater, chat_id):
         self.q = PriorityQueue()
@@ -37,7 +37,7 @@ class Chat:
                     img_name = generate_image(Chat.images_info,
                                               'yellow_bird.jpg',
                                               msg[1].capitalize(),
-                                              font_path='resources/OpenSans-Semibold.ttf')
+                                              font_path='notifier/resources/OpenSans-Semibold.ttf')
                     logger.info(f'remind about {msg[1]}')
                     updater.bot.send_photo(chat_id, open(img_name, 'rb'),
                                            caption=f'{msg[1]}')
