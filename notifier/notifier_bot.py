@@ -65,17 +65,13 @@ def check_text(bot, message):
             updater.bot.send_message(message.effective_chat.id,
                                      f'Я напомню {result.datetime} о {result.message}')
     else:
-        updater.bot.send_message(message.effective_chat.id,
-                                 f'Я не смог понять о чем ты :(\n'
-                                 f'Я поддерживаю следюущий синтаксис:\n'
-                                 f'напомни <когда, дата> в <когда, время>: <текст напоминания>\n'
-                                 f'Если не будет <когда, дата>, то сегодня, если не будет <когда, время>, то в 14:00')
+        updater.bot.send_message(message.effective_chat.id, help_string)
     logger.info(f'parsed result: {result}')
     # updater.bot.send_message(message.effective_chat.id, email)
 
 
 def start(bot, message):
-    updater.bot.send_message(message.effective_chat.id, 'Send me nickname, please')
+    updater.bot.send_message(message.effective_chat.id, help_string)
 
 
 def error(update, context):
@@ -104,8 +100,8 @@ if __name__ == '__main__':
     # exit()
     user_token = notifier_token
 
-    updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
-    # updater = Updater(token=user_token)
+    # updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
+    updater = Updater(token=user_token)
     dispatcher = updater.dispatcher
 
     text_handler = MessageHandler(Filters.text, check_text)
