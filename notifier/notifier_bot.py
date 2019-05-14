@@ -1,6 +1,9 @@
 from telegram.ext import CommandHandler
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
+import sys
+import os
+sys.path.append(os.getcwd())
 from config import *
 from notifier.chat_id_manager import ChatIdManager
 from notifier.utils import *
