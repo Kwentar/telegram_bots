@@ -23,9 +23,9 @@ class Chat:
         self.thread.start()
 
     def add_event(self, parsing_result: ParsingResult):
-        self.logger.info(f'added event {parsing_result}')
-
-        self.q.put((parsing_result.datetime - timedelta(minutes=self.minutes_delta), parsing_result.message))
+        event = (parsing_result.datetime + timedelta(minutes=self.minutes_delta), parsing_result.message)
+        self.logger.info(f'added event {event}')
+        self.q.put(event)
 
     @staticmethod
     def chat_thread(updater, user_queue: PriorityQueue, chat_id, logger):
