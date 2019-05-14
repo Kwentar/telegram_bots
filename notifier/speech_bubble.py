@@ -1,12 +1,8 @@
 import cv2
-import pandas as pd
+from notifier.utils import read_info
 import numpy as np
 from PIL import ImageFont, ImageDraw, Image
 import os
-
-
-def read_info(file_name='images_info.csv'):
-    return pd.read_csv(file_name, index_col='image')
 
 
 def generate_image(images_info, image, message, font_path="OpenSans-Semibold.ttf"):
@@ -36,12 +32,16 @@ def generate_image(images_info, image, message, font_path="OpenSans-Semibold.ttf
             break
     draw.text((left+(bubble_width-w)/2, top+(bubble_height-h)/2), message, font=font, fill=(b, g, r, 255))
     img = np.array(img_pil)
-    return img
+    cv2.imwrite('tmp.png', img)
+    return 'tmp.png'
 
 
 if __name__ == '__main__':
-    images_info = read_info()
-    img = generate_image(images_info, 'yellow_bird.jpg', 'Оставить документы в офисе')
+    images_info = read_info(file_name='resources/images_info.csv')
+    img = generate_image(images_info,
+                         'yellow_bird.jpg',
+                         'Оставить документы в офисе',
+                         font_path='resources/OpenSans-Semibold.ttf')
     cv2.imshow('sfs', img)
-    cv2.imwrite('tmp.png', img)
+    cv2.imwrite('resources/tmp.png', img)
     cv2.waitKey()

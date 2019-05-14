@@ -102,8 +102,8 @@ if __name__ == '__main__':
     updater = Updater(token=user_token)
     dispatcher = updater.dispatcher
 
-    photo_handler = MessageHandler(Filters.text, check_text)
-    dispatcher.add_handler(photo_handler)
+    text_handler = MessageHandler(Filters.text, check_text)
+    dispatcher.add_handler(text_handler)
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
     dispatcher.add_error_handler(error)
