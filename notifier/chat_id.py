@@ -1,10 +1,13 @@
 import threading
 from queue import PriorityQueue
 from datetime import datetime
+import time
 
+import sys
+import os
+sys.path.append(os.getcwd())
 from notifier.speech_bubble import generate_image
 from notifier.utils import read_info, ParsingResult, get_logger
-import time
 
 
 class Chat:
