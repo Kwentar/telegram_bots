@@ -12,9 +12,9 @@ class ChatIdManager(dict):
     def __getitem__(self, item):
         return self.dict[item]
 
-    def add_item(self, updater, chat_id):
+    def add_item(self, bot, chat_id):
         self.logger.info(f'added new chat_id {chat_id}')
-        self.dict[chat_id] = Chat(updater, chat_id)
+        self.dict[chat_id] = Chat(bot, chat_id)
 
     def __contains__(self, item):
         return item in self.dict

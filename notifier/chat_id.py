@@ -10,25 +10,32 @@ from notifier.utils import read_info, ParsingResult, get_logger
 class Chat:
     images_info = read_info(file_name='notifier/resources/images_info.csv')
 
-    def __init__(self, updater, chat_id):
+    def __init__(self, bot, chat_id):
         self.q = PriorityQueue()
         self.chat_id = chat_id
         self.minutes_delta = -60
         self.logger = get_logger(f'Chat {chat_id}')
         self.thread = threading.Thread(target=Chat.chat_thread,
-                                       kwargs={'updater': updater,
+                                       kwargs={'bot': bot,
                                                'user_queue': self.q,
                                                'chat_id': self.chat_id,
                                                'logger': self.logger})
         self.thread.start()
 
     def add_event(self, parsing_result: ParsingResult):
-        event = (parsing_result.datetime + timedelta(minutes=self.minutes_delta), parsing_result.message)
+        event = (parsing_result.datetime +
+                 timedelta(minutes=self.minutes_delta),
+                 parsing_result.message)
         self.logger.info(f'added event {event}')
         self.q.put(event)
 
     @staticmethod
-    def chat_thread(updater, user_queue: PriorityQueue, chat_id, logger):
+    def upcase_first_letter(s):
+        return s[0].upper() + s[1:]
+
+    @staticmethod
+    def chat_thread(bot, user_queue: PriorityQueue, chat_id, logger):
+        font_path = 'notifier/resources/OpenSans-Semibold.ttf'
         while True:
             if user_queue.queue:
                 msg = user_queue.queue[0]
@@ -37,9 +44,10 @@ class Chat:
 
                     img_name = generate_image(Chat.images_info,
                                               'yellow_bird.jpg',
-                                              msg[1].capitalize(),
-                                              font_path='notifier/resources/OpenSans-Semibold.ttf')
+                                              Chat.upcase_first_letter(msg[1]),
+                                              font_path=font_path)
                     logger.info(f'remind about {msg[1]}')
-                    updater.bot.send_photo(chat_id, open(img_name, 'rb'),
-                                           caption=f'{msg[1]}')
+                    bot.send_photo(chat_id,
+                                   open(img_name, 'rb'),
+                                   caption=f'{msg[1]}')
             time.sleep(1)

@@ -21,19 +21,20 @@ def get_logger(logger_name):
     logger.setLevel(logging_level)
     sh = logging.StreamHandler()
     sh.setLevel(logging_level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - '
+                                  '%(levelname)s - %(message)s')
     sh.setFormatter(formatter)
     logger.addHandler(sh)
     return logger
 
 
 class Modes(Enum):
-    NOTIFY = 0
+    REMIND = 0
     CANCEL = 10
+    NONE = 100
 
 
 class ParsingResult(NamedTuple):
-    mode: Modes
     datetime: datetime
     message: str
 

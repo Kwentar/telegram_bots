@@ -11,29 +11,63 @@ class IntentException(Exception):
         super().__init__(message)
 
 
-def parse_date(date_: str):
-    now = datetime.now().date()
+def parse_date_time(date_: str, time_: str):
+    """
+    Parse date part
+
+    :param date_: date in format dd.mm and a few special words: {сегодня, завтра, послезавтра}
+    :return:
+    """
+    now = datetime.now()
     if not date_:
-        return now
+        hours, minutes = parse_time(time_)
+        goal_date = datetime(now.year,
+                             now.month,
+                             now.day,
+                             hours,
+                             minutes)
+        return goal_date
     date_ = date_.lower()
-    day_delta = 0
+    time_delta = 0
+    type_ = 'days'
+
     if date_ == 'сегодня':
-        day_delta = 0
+        time_delta = 0
     elif date_ == 'завтра':
-        day_delta = 1
+        time_delta = 1
     elif date_ == 'послезавтра':
-        day_delta = 2
+        time_delta = 2
+    elif 'через' in date_:
+        _, time_delta, time_type = date_.split()
+        time_type = time_type.lower()
+        time_delta = int(time_delta)
+        if 'мин' in time_type:
+            type_ = 'minutes'
+        elif 'час' in time_type:
+            type_ = 'hours'
     else:
         day, month = map(int, date_.split('.'))
         now = datetime(now.year, month, day)
 
-    goal_date = now + timedelta(days=day_delta)
-    logger.debug(goal_date)
+    goal_date = now + timedelta(**{type_: time_delta})
+    if type_ not in ['hours', 'minutes']:
+        hours, minutes = parse_time(time_)
+        goal_date = datetime(goal_date.year,
+                             goal_date.month,
+                             goal_date.day,
+                             hours,
+                             minutes)
+    logger.debug(f'parsed date {goal_date}')
     return goal_date
 
 
 def parse_time(time_: str):
-    now = datetime.now()
+    """
+    Parse time part
+
+    :param time_: time in format hh:mm
+    :return: hours and minutes
+    """
 
     if not time_:
         hour, minutes = 14, 0
@@ -45,39 +79,51 @@ def parse_time(time_: str):
         except Exception as ex:
             logger.error(f'wrong time {time_} with exception {ex}')
             raise IntentException(f'wrong time {ex}')
-    return datetime(now.year, now.month, now.day, hour=hour, minute=minutes)
+    logger.debug(f'parsed time {hour}:{minutes}')
+
+    return hour, minutes
 
 
-def parse_intent(text: str) -> ParsingResult:
-
-    logger.debug(text)
+def get_intent(text: str):
     words = text.split()
+    command = Modes.NONE
     if words[0].lower() == 'напомни':
-        date_time = text[text.find(' '):text.rfind(':')]
-        message = text[text.rfind(':')+1:].strip()
-        try:
-            date_, time_ = map(str.strip, date_time.split(' в '))
-        except ValueError:
-            date_ = date_time
-            time_ = ''
-        date_ = parse_date(date_.strip())
-        time_ = parse_time(time_.strip())
-        result_date_time = datetime(date_.year,
-                                    date_.month,
-                                    date_.day,
-                                    time_.hour,
-                                    time_.minute,
-                                    time_.second)
-        logger.debug((date_time, date_, time_))
-        logger.debug(date_)
-        logger.debug(date_)
-        result = ParsingResult(mode=Modes.NOTIFY, datetime=result_date_time, message=message)
-        return result
-    else:
-        raise IntentException(f'wrong command {words[0]}')
+        command = Modes.REMIND
+
+    text = text[text.find(' '):]
+    return command, text
+
+
+def parse_remind(text: str) -> ParsingResult:
+    """
+    Parse remind command
+
+    :param text: source string from chat except command part
+    :return: ParsingResult - command (mode), date and
+    time (datetime) and message for remind (message)
+    """
+    logger.debug(text)
+    date_time = text[:text.rfind(':')]
+    message = text[text.rfind(':')+1:].strip()
+    try:
+        date_, time_ = map(str.strip, date_time.split(' в '))
+    except ValueError:
+        date_ = date_time
+        time_ = ''
+    result_date_time = parse_date_time(date_.strip(), time_.strip())
+
+    result = ParsingResult(datetime=result_date_time, message=message)
+    logger.debug(f'parsing result {result}')
+
+    return result
 
 
 if __name__ == '__main__':
-    print(parse_intent('напомни завтра: сделать дела'))
-    print(parse_intent('напомни 12.05 в 14:30: сделать дела'))
-    print(parse_intent('напомни в 14:30: сделать дела'))
+
+    print(get_intent('напомни завтра: сделать дела'))
+    print(get_intent('напомни 12.05 в 14:30: сделать дела'))
+    print(get_intent('напомни в 14:30: сделать дела'))
+
+    print(parse_remind(get_intent('напомни завтра: сделать дела1')[1]))
+    print(parse_remind(get_intent('напомни 12.05 в 14:30: сделать дела2')[1]))
+    print(parse_remind(get_intent('напомни в 14:30: сделать дела3')[1]))
