@@ -1,2 +1,4 @@
 image, left, top, right, bottom, anchor_x, anchor_y,color_r, color_g, color_b
 yellow_bird.jpg, 100, 50, 850, 350, 950, 250, 128, 0, 128
+fennec.jpg, 50, 300, 700, 500, 700, 520, 60, 70, 80
+lama.jpg, 430, 380, 970, 550, 390, 560, 50, 75, 100
