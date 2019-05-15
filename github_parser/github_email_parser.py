@@ -129,8 +129,6 @@ def error(update, context):
 
 
 if __name__ == '__main__':
-    print(get_email_from_account('panovivan'))
-    exit()
 
     user_token = github_user_token
 
