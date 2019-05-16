@@ -22,7 +22,8 @@ class Chat:
                                        kwargs={'bot': bot,
                                                'user_queue': self.q,
                                                'chat_id': self.chat_id,
-                                               'logger': self.logger})
+                                               'logger': self.logger,
+                                               'minutes_delta': self.minutes_delta})
         self.thread.start()
 
     def add_event(self, parsing_result: ParsingResult):
@@ -37,12 +38,16 @@ class Chat:
         return s[0].upper() + s[1:]
 
     @staticmethod
-    def chat_thread(bot, user_queue: PriorityQueue, chat_id, logger):
+    def chat_thread(bot,
+                    user_queue: PriorityQueue,
+                    chat_id,
+                    logger,
+                    minutes_delta):
         font_path = 'notifier/resources/OpenSans-Semibold.ttf'
         while True:
             if user_queue.queue:
                 msg = user_queue.queue[0]
-                if msg[0] < datetime.datetime.now():
+                if msg[0] < datetime.datetime.now() + minutes_delta:
                     msg = user_queue.get()
                     try:
                         img_name = generate_image(Chat.images_info,

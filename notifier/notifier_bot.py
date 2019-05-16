@@ -42,7 +42,7 @@ def get_time_delta(chat_id):
     if chat_id in chat_manager:
         return chat_manager[chat_id].minutes_delta
     else:
-        return -60
+        return 60
 
 
 def process_remind(bot, chat_id, text):
@@ -87,17 +87,18 @@ def set_time(bot, message):
         value = int(message_text.split()[1])
         if chat_id not in chat_manager:
             chat_manager.add_item(bot, chat_id, value)
+        else:
+            chat_manager[chat_id].minutes = value
         time_delta = datetime.timedelta(
             get_time_delta(message.effective_chat.id))
-
+        logger.info(f'set up new time delta for chat {chat_id} = {value}')
         bot.send_message(message.effective_chat.id,
-                         f'now time is {datetime.datetime.now()+time_delta}')
-
+                         f'Время бота для вас: {datetime.datetime.now()+time_delta}')
     except:
         bot.send_message(message.effective_chat.id,
                          'Неправильный аргумент, '
                          'синтаксис /set_time <количество минут>, например, '
-                         '/set_time -60 установит время GMT+3 (Москва)')
+                         '/set_time 60 установит время GMT+3 (Москва)')
 
 
 def error(update, context):
