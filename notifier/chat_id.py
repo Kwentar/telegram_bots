@@ -47,7 +47,8 @@ class Chat:
         while True:
             if user_queue.queue:
                 msg = user_queue.queue[0]
-                if msg[0] < datetime.datetime.now() + minutes_delta:
+                if msg[0] < datetime.datetime.now() + \
+                        datetime.timedelta(minutes=minutes_delta):
                     msg = user_queue.get()
                     try:
                         img_name = generate_image(Chat.images_info,
