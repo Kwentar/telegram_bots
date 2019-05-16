@@ -12,7 +12,7 @@ class ChatIdManager(dict):
     def __getitem__(self, item):
         return self.dict[item]
 
-    def add_item(self, bot, chat_id, minutes_delta=-60):
+    def add_item(self, bot, chat_id, minutes_delta=60):
         self.logger.info(f'added new chat_id {chat_id}')
         self.dict[chat_id] = Chat(bot, chat_id, minutes_delta)
 
