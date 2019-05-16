@@ -88,7 +88,7 @@ def set_time(bot, message):
         if chat_id not in chat_manager:
             chat_manager.add_item(bot, chat_id, value)
         else:
-            chat_manager[chat_id].minutes = value
+            chat_manager[chat_id].minutes_delta = value
         time_delta = datetime.timedelta(
             get_time_delta(message.effective_chat.id))
         logger.info(f'set up new time delta for chat {chat_id} = {value}')
