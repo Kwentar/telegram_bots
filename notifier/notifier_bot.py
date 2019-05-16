@@ -48,7 +48,7 @@ def get_time_delta(chat_id):
 def process_remind(bot, chat_id, text):
     if chat_id not in chat_manager:
         chat_manager.add_item(bot, chat_id)
-    result = parse_remind(text)
+    result = parse_remind(text, chat_manager[chat_id].get_now())
 
     if result.datetime < chat_manager[chat_id].get_now():
         logger.debug(f'previous {chat_manager[chat_id].get_now()}')

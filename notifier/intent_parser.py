@@ -11,14 +11,13 @@ class IntentException(Exception):
         super().__init__(message)
 
 
-def parse_date_time(date_: str, time_: str):
+def parse_date_time(date_: str, time_: str, now):
     """
     Parse date part
 
     :param date_: date in format dd.mm and a few special words: {сегодня, завтра, послезавтра}
     :return:
     """
-    now = datetime.datetime.now()
     if not date_:
         hours, minutes = parse_time(time_)
         goal_date = datetime.datetime(now.year,
@@ -94,7 +93,7 @@ def get_intent(text: str):
     return command, text
 
 
-def parse_remind(text: str) -> ParsingResult:
+def parse_remind(text: str, now) -> ParsingResult:
     """
     Parse remind command
 
@@ -110,7 +109,7 @@ def parse_remind(text: str) -> ParsingResult:
     except ValueError:
         date_ = date_time
         time_ = ''
-    result_date_time = parse_date_time(date_.strip(), time_.strip())
+    result_date_time = parse_date_time(date_.strip(), time_.strip(), now)
 
     result = ParsingResult(datetime=result_date_time,
                            message=message)
