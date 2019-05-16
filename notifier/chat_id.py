@@ -1,7 +1,7 @@
 import random
 import threading
 from queue import PriorityQueue
-from datetime import datetime, timedelta
+import datetime
 import time
 
 from notifier.speech_bubble import generate_image
@@ -42,7 +42,7 @@ class Chat:
         while True:
             if user_queue.queue:
                 msg = user_queue.queue[0]
-                if msg[0] < datetime.now():
+                if msg[0] < datetime.datetime.now():
                     msg = user_queue.get()
                     try:
                         img_name = generate_image(Chat.images_info,

@@ -47,10 +47,9 @@ def get_time_delta(chat_id):
 
 def process_remind(bot, chat_id, text):
     time_delta = datetime.timedelta(minutes=get_time_delta(chat_id))
-    result = parse_remind(text)
-    result.datetime = result.datetime + time_delta
+    result = parse_remind(text, time_delta)
 
-    if result.datetime < datetime.now() + time_delta:
+    if result.datetime < datetime.datetime.now() + time_delta:
         bot.send_message(chat_id,
                          f'{result.datetime} прошло.\n'
                          f'Я не могу исправить твоих ошибок прошлого, пока.')
@@ -75,8 +74,10 @@ def remind(bot, message):
 
 
 def get_time(bot, message):
-    time_delta = datetime.timedelta(get_time_delta(message.effective_chat.id))
-    bot.send_message(message.effective_chat.id, str(datetime.now()+time_delta))
+    time_delta = datetime.timedelta(
+        minutes=get_time_delta(message.effective_chat.id))
+    bot.send_message(message.effective_chat.id,
+                     str(datetime.datetime.now()+time_delta))
 
 
 def set_time(bot, message):
@@ -86,13 +87,17 @@ def set_time(bot, message):
         value = int(message_text.split()[1])
         if chat_id not in chat_manager:
             chat_manager.add_item(bot, chat_id, value)
+        time_delta = datetime.timedelta(
+            get_time_delta(message.effective_chat.id))
+
+        bot.send_message(message.effective_chat.id,
+                         f'now time is {datetime.datetime.now()+time_delta}')
+
     except:
         bot.send_message(message.effective_chat.id,
                          'Неправильный аргумент, '
                          'синтаксис /set_time <количество минут>, например, '
                          '/set_time -60 установит время GMT+3 (Москва)')
-
-    bot.send_message(message.effective_chat.id, str(datetime.now()))
 
 
 def error(update, context):
@@ -102,8 +107,9 @@ def error(update, context):
 
 if __name__ == '__main__':
     user_token = notifier_token
-    # updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
-    updater = Updater(token=user_token)
+    user_token = room_vs_plan_token
+    updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
+    # updater = Updater(token=user_token)
     dispatcher = updater.dispatcher
 
     text_handler = MessageHandler(Filters.text, check_text)

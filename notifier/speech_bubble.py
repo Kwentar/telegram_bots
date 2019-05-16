@@ -45,7 +45,7 @@ def generate_image(images_info,
            h < bubble_height-bubble_height*0.1:
             break
     draw.text((left+(bubble_width-w)/2,
-               top+(bubble_height-h)/2),
+               top+(bubble_height-h)/2 - h/10),
               message,
               font=font,
               fill=(b, g, r, 255))

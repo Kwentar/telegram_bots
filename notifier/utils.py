@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 import logging
 from enum import Enum
 from typing import NamedTuple
@@ -35,7 +35,7 @@ class Modes(Enum):
 
 
 class ParsingResult(NamedTuple):
-    datetime: datetime
+    datetime: datetime.datetime
     message: str
 
 

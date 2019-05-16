@@ -1,4 +1,4 @@
-from datetime import timedelta
+import datetime
 from notifier.utils import *
 
 logger = get_logger('intent parser')
@@ -18,14 +18,14 @@ def parse_date_time(date_: str, time_: str):
     :param date_: date in format dd.mm and a few special words: {сегодня, завтра, послезавтра}
     :return:
     """
-    now = datetime.now()
+    now = datetime.datetime.now()
     if not date_:
         hours, minutes = parse_time(time_)
-        goal_date = datetime(now.year,
-                             now.month,
-                             now.day,
-                             hours,
-                             minutes)
+        goal_date = datetime.datetime(now.year,
+                                      now.month,
+                                      now.day,
+                                      hours,
+                                      minutes)
         return goal_date
     date_ = date_.lower()
     time_delta = 0
@@ -47,16 +47,16 @@ def parse_date_time(date_: str, time_: str):
             type_ = 'hours'
     else:
         day, month = map(int, date_.split('.'))
-        now = datetime(now.year, month, day)
+        now = datetime.datetime(now.year, month, day)
 
-    goal_date = now + timedelta(**{type_: time_delta})
+    goal_date = now + datetime.timedelta(**{type_: time_delta})
     if type_ not in ['hours', 'minutes']:
         hours, minutes = parse_time(time_)
-        goal_date = datetime(goal_date.year,
-                             goal_date.month,
-                             goal_date.day,
-                             hours,
-                             minutes)
+        goal_date = datetime.datetime(goal_date.year,
+                                      goal_date.month,
+                                      goal_date.day,
+                                      hours,
+                                      minutes)
     logger.debug(f'parsed date {goal_date}')
     return goal_date
 
@@ -94,7 +94,7 @@ def get_intent(text: str):
     return command, text
 
 
-def parse_remind(text: str) -> ParsingResult:
+def parse_remind(text: str, time_delta: datetime.timedelta) -> ParsingResult:
     """
     Parse remind command
 
@@ -112,7 +112,8 @@ def parse_remind(text: str) -> ParsingResult:
         time_ = ''
     result_date_time = parse_date_time(date_.strip(), time_.strip())
 
-    result = ParsingResult(datetime=result_date_time, message=message)
+    result = ParsingResult(datetime=result_date_time + time_delta,
+                           message=message)
     logger.debug(f'parsing result {result}')
 
     return result
