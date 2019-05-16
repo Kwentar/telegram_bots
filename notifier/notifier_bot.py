@@ -1,3 +1,4 @@
+import datetime
 from telegram.ext import CommandHandler
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
@@ -33,14 +34,23 @@ def check_text(bot, message):
 
     if command == Modes.REMIND:
         process_remind(bot, message.effective_chat.id, text)
-
     else:
         bot.send_message(message.effective_chat.id, help_string)
 
 
+def get_time_delta(chat_id):
+    if chat_id in chat_manager:
+        return chat_manager[chat_id].minutes_delta
+    else:
+        return -60
+
+
 def process_remind(bot, chat_id, text):
+    time_delta = datetime.timedelta(minutes=get_time_delta(chat_id))
     result = parse_remind(text)
-    if result.datetime < datetime.now():
+    result.datetime = result.datetime + time_delta
+
+    if result.datetime < datetime.now() + time_delta:
         bot.send_message(chat_id,
                          f'{result.datetime} прошло.\n'
                          f'Я не могу исправить твоих ошибок прошлого, пока.')
@@ -65,6 +75,23 @@ def remind(bot, message):
 
 
 def get_time(bot, message):
+    time_delta = datetime.timedelta(get_time_delta(message.effective_chat.id))
+    bot.send_message(message.effective_chat.id, str(datetime.now()+time_delta))
+
+
+def set_time(bot, message):
+    message_text = message['message']['text']
+    chat_id = message.effective_chat.id
+    try:
+        value = int(message_text.split()[1])
+        if chat_id not in chat_manager:
+            chat_manager.add_item(bot, chat_id, value)
+    except:
+        bot.send_message(message.effective_chat.id,
+                         'Неправильный аргумент, '
+                         'синтаксис /set_time <количество минут>, например, '
+                         '/set_time -60 установит время GMT+3 (Москва)')
+
     bot.send_message(message.effective_chat.id, str(datetime.now()))
 
 
@@ -84,10 +111,12 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     remind_handler = CommandHandler('remind', remind)
     get_time_handler = CommandHandler('get_time', get_time)
+    set_time_handler = CommandHandler('set_time', set_time)
     # get_time_handler = CommandHandler('get_time', remind)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(remind_handler)
     dispatcher.add_handler(get_time_handler)
+    dispatcher.add_handler(set_time_handler)
     dispatcher.add_error_handler(error)
     updater.start_polling()
     print('Notifier Bot has started')

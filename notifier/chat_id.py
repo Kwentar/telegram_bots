@@ -12,11 +12,11 @@ class Chat:
     images_info = read_info(file_name='notifier/resources/images_info.csv')
     images = images_info.index.values
 
-    def __init__(self, bot, chat_id):
+    def __init__(self, bot, chat_id, minutes_delta=-60):
         self.q = PriorityQueue()
         self.bot = bot
         self.chat_id = chat_id
-        self.minutes_delta = -60
+        self.minutes_delta = minutes_delta
         self.logger = get_logger(f'Chat {chat_id}')
         self.thread = threading.Thread(target=Chat.chat_thread,
                                        kwargs={'bot': bot,
@@ -27,8 +27,7 @@ class Chat:
 
     def add_event(self, parsing_result: ParsingResult):
         self.logger.info(f'thread is alive: {self.thread.is_alive()}')
-        event = (parsing_result.datetime +
-                 timedelta(minutes=self.minutes_delta),
+        event = (parsing_result.datetime,
                  parsing_result.message)
         self.logger.info(f'added event {event}')
         self.q.put(event)
