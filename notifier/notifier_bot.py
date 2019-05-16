@@ -46,16 +46,16 @@ def get_time_delta(chat_id):
 
 
 def process_remind(bot, chat_id, text):
-    time_delta = datetime.timedelta(minutes=get_time_delta(chat_id))
-    result = parse_remind(text, time_delta)
+    if chat_id not in chat_manager:
+        chat_manager.add_item(bot, chat_id)
+    result = parse_remind(text)
 
-    if result.datetime < datetime.datetime.now() + time_delta:
+    if result.datetime < chat_manager[chat_id].get_now():
+        logger.debug(f'previous {chat_manager[chat_id].get_now()}')
         bot.send_message(chat_id,
                          f'{result.datetime} прошло.\n'
                          f'Я не могу исправить твоих ошибок прошлого, пока.')
     else:
-        if chat_id not in chat_manager:
-            chat_manager.add_item(bot, chat_id)
         chat_manager[chat_id].add_event(result)
         bot.send_message(chat_id, f'Я напомню {result.datetime} о '
                                   f'{result.message}')
@@ -74,10 +74,11 @@ def remind(bot, message):
 
 
 def get_time(bot, message):
-    time_delta = datetime.timedelta(
-        minutes=get_time_delta(message.effective_chat.id))
+    chat_id = message.effective_chat.id
+    if chat_id not in chat_manager:
+        chat_manager.add_item(bot, chat_id)
     bot.send_message(message.effective_chat.id,
-                     str(datetime.datetime.now()+time_delta))
+                     str(chat_manager[chat_id].get_now()))
 
 
 def set_time(bot, message):
@@ -89,11 +90,9 @@ def set_time(bot, message):
             chat_manager.add_item(bot, chat_id, value)
         else:
             chat_manager[chat_id].minutes_delta = value
-        time_delta = datetime.timedelta(
-            get_time_delta(message.effective_chat.id))
         logger.info(f'set up new time delta for chat {chat_id} = {value}')
         bot.send_message(message.effective_chat.id,
-                         f'Время бота для вас: {datetime.datetime.now()+time_delta}')
+                         f'Время бота для вас: {chat_manager[chat_id].get_now()}')
     except:
         bot.send_message(message.effective_chat.id,
                          'Неправильный аргумент, '
@@ -107,10 +106,11 @@ def error(update, context):
 
 
 if __name__ == '__main__':
-    user_token = notifier_token
-    # user_token = room_vs_plan_token
-    #updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
-    updater = Updater(token=user_token)
+    # user_token = notifier_token
+    # updater = Updater(token=user_token)
+
+    user_token = room_vs_plan_token
+    updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
     dispatcher = updater.dispatcher
 
     text_handler = MessageHandler(Filters.text, check_text)

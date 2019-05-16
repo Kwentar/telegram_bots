@@ -94,7 +94,7 @@ def get_intent(text: str):
     return command, text
 
 
-def parse_remind(text: str, time_delta: datetime.timedelta) -> ParsingResult:
+def parse_remind(text: str) -> ParsingResult:
     """
     Parse remind command
 
@@ -112,7 +112,7 @@ def parse_remind(text: str, time_delta: datetime.timedelta) -> ParsingResult:
         time_ = ''
     result_date_time = parse_date_time(date_.strip(), time_.strip())
 
-    result = ParsingResult(datetime=result_date_time + time_delta,
+    result = ParsingResult(datetime=result_date_time,
                            message=message)
     logger.debug(f'parsing result {result}')
 

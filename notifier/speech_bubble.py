@@ -45,7 +45,7 @@ def generate_image(images_info,
            h < bubble_height-bubble_height*0.1:
             break
     draw.text((left+(bubble_width-w)/2,
-               top+(bubble_height-h)/2 - h/10),
+               top+(bubble_height-h)/2 - h/6),
               message,
               font=font,
               fill=(b, g, r, 255))
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     images_info = read_info(file_name='notifier/resources/images_info.csv')
     img = generate_image(images_info,
                          random.choice(images_info.index.values),
-                         'Оставить документы в офисе',
+                         'Тест',
                          font_path='notifier/resources/OpenSans-Semibold.ttf')
     img = cv2.imread(img)
     cv2.imshow('sfs', img)
