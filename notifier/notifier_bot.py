@@ -107,9 +107,9 @@ def error(update, context):
 
 if __name__ == '__main__':
     user_token = notifier_token
-    user_token = room_vs_plan_token
-    updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
-    # updater = Updater(token=user_token)
+    # user_token = room_vs_plan_token
+    #updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
+    updater = Updater(token=user_token)
     dispatcher = updater.dispatcher
 
     text_handler = MessageHandler(Filters.text, check_text)
