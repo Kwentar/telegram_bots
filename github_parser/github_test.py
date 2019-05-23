@@ -1,4 +1,10 @@
 from github_parser.github_email_parser import get_email_from_account
+from github_parser.github_email_parser import get_email_from_page
+
+
+def test_page_email():
+    assert get_email_from_page('kwentar') is None
+    assert get_email_from_page('dbader') == 'mail@dbader.org'
 
 
 def test_get_email_from_account():

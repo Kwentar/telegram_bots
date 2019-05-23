@@ -37,6 +37,9 @@ class Chat:
     def upper_first_letter(s):
         return s[0].upper() + s[1:]
 
+    def get_queue_size(self):
+        return self.user_queue.qsize()
+
     @staticmethod
     def chat_thread(chat_object):
         font_path = 'notifier/resources/OpenSans-Semibold.ttf'

@@ -19,11 +19,22 @@ class ChatIdManager(dict):
     def __contains__(self, item):
         return item in self.dict
 
+    def get_stat_total(self):
+        total_users = len(self.dict)
+        total_reminders = 0
+        for k in self.dict:
+            total_reminders += self.dict[k].get_queue_size()
+        stat_string = f'We have {total_users} users with ' \
+            f'{total_reminders} reminders'
+        self.logger.info(f'get stat, stat is {stat_string}')
+        return stat_string
+
 
 if __name__ == '__main__':
     d = ChatIdManager()
     d.add_item(None, 'tmp')
     d['tmp'] = 10
+    d['ttt'] = 101
     print('tmp' in d)
     print('ttt' in d)
     print(d['tmp'], d['rrr'])

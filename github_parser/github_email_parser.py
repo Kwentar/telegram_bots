@@ -4,8 +4,7 @@ from bs4 import BeautifulSoup
 from telegram.ext import CommandHandler
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
-import logging
-import re
+from github import Github
 import sys
 import os
 sys.path.append(os.getcwd())
@@ -13,7 +12,8 @@ from config import *
 
 
 def get_commits_list_from_repo(account_name, repo_name):
-    repo_url = 'https://github.com/' + account_name + '/' + repo_name + '/commits/master'
+    repo_url = 'https://github.com/' + account_name + '/' + \
+               repo_name + '/commits/master'
     resp = requests.get(repo_url)
     soup = BeautifulSoup(resp.text, features="html.parser")
     commits_list = soup.find(class_='commits-listing')
@@ -69,7 +69,8 @@ def get_email_from_account(account_name):
 
                     for commit in commits_list:
                         author_and_email = \
-                            get_author_and_email_from_commit(account_name, commit)
+                            get_author_and_email_from_commit(account_name,
+                                                             commit)
                         if author_and_email:
                             return author_and_email
         except:
@@ -91,6 +92,29 @@ def get_email_from_account(account_name):
     return 'Cannot find anything =('
 
 
+git_api = None
+
+
+def login(force=False):
+    global git_api
+    if force or git_api is None:
+        logger.info('logging in github')
+        git_api = Github(github_user, github_token)
+    return git_api
+
+
+def get_email_from_page(account_name):
+    try:
+        g = login()
+        return g.get_user(account_name).email
+    except:
+        try:
+            g = login(force=True)
+            return g.get_user(account_name).email
+        except:
+            return None
+
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s  %(message)s',
                     level=logging.WARNING)
@@ -105,22 +129,26 @@ logger = logging.getLogger(__name__)
 
 def check_text(bot, message):
     print('-'*40)
+    page_email = get_email_from_page(message['message']['text'])
     email = get_email_from_account(message['message']['text'])
 
-    # print(message['message']['from']['username'], message['message']['from']['first_name'])
     try:
-        logger.warning(message['message']['from_user']['username'] + ' ' + message['message']['from_user']['first_name'])
+        logger.warning(message['message']['from_user']['username'] + ' ' +
+                       message['message']['from_user']['first_name'])
     except:
         pass
     print(message['message']['text'], email)
     print('-'*40)
-
-    # update.message.reply_text(get_email_from_account(update.message.text))
-    updater.bot.send_message(message.effective_chat.id, email)
+    if page_email:
+        answer = f'Page email: {page_email}\n{email}'
+    else:
+        answer = email
+    updater.bot.send_message(message.effective_chat.id, answer)
 
 
 def start(bot, message):
-    updater.bot.send_message(message.effective_chat.id, 'Send me nickname, please')
+    updater.bot.send_message(message.effective_chat.id,
+                             'Send me nickname, please')
 
 
 def error(update, context):
@@ -130,9 +158,9 @@ def error(update, context):
 
 if __name__ == '__main__':
 
-    user_token = github_user_token
+    user_token = tg_github_user_token
 
-    # updater = Updater(token=token, request_kwargs={'proxy_url': address})
+    # updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
     updater = Updater(token=user_token)
     dispatcher = updater.dispatcher
 

@@ -1,4 +1,3 @@
-import datetime
 from telegram.ext import CommandHandler
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
@@ -100,13 +99,25 @@ def set_time(bot, message):
                          '/set_time 60 установит время GMT+3 (Москва)')
 
 
+def get_stat(bot, message):
+    try:
+        if message['message']['from_user']['username'] != 'Kwent':
+            bot.send_message(message.effective_chat.id,
+                             'Statistic is available only for God')
+            return
+        bot.send_message(message.effective_chat.id,
+                         chat_manager.get_stat_total())
+    except:
+        pass
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     print('Update "%s" caused error "%s"', update, context.error)
 
 
 if __name__ == '__main__':
-    user_token = notifier_token
+    user_token = tg_reminder_token
     updater = Updater(token=user_token)
 
     # user_token = room_vs_plan_token
@@ -119,7 +130,7 @@ if __name__ == '__main__':
     remind_handler = CommandHandler('remind', remind)
     get_time_handler = CommandHandler('get_time', get_time)
     set_time_handler = CommandHandler('set_time', set_time)
-    # get_time_handler = CommandHandler('get_time', remind)
+    get_stat_handler = CommandHandler('get_stat', get_stat)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(remind_handler)
     dispatcher.add_handler(get_time_handler)
