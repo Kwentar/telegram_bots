@@ -129,15 +129,17 @@ logger = logging.getLogger(__name__)
 
 def check_text(bot, message):
     print('-'*40)
-    page_email = get_email_from_page(message['message']['text'])
-    email = get_email_from_account(message['message']['text'])
+    text = message['message']['text']
+    account_name = text.split('/')[-1]
+    page_email = get_email_from_page(account_name)
+    email = get_email_from_account(account_name)
 
     try:
         logger.warning(message['message']['from_user']['username'] + ' ' +
                        message['message']['from_user']['first_name'])
     except:
         pass
-    print(message['message']['text'], email)
+    logger.info(message['message']['text'], account_name, email, page_email)
     print('-'*40)
     if page_email:
         answer = f'Page email: {page_email}\n{email}'
@@ -159,9 +161,10 @@ def error(update, context):
 if __name__ == '__main__':
 
     user_token = tg_github_user_token
-
-    # updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
     updater = Updater(token=user_token)
+
+    # user_token = tg_room_vs_plan_token
+    # updater = Updater(token=user_token, request_kwargs={'proxy_url': address})
     dispatcher = updater.dispatcher
 
     text_handler = MessageHandler(Filters.text, check_text)

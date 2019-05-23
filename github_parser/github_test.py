@@ -7,6 +7,13 @@ def test_page_email():
     assert get_email_from_page('dbader') == 'mail@dbader.org'
 
 
+def test_url():
+    assert get_email_from_account('mi5aka') == \
+        'commit_author: mi5aka | From: zakharova_a <mi5akatwi@gmail.com>'
+    assert get_email_from_account('kwentar') == \
+        'commit_author: kwentar | From: Aleksei <alekseev.yeskela@gmail.com>'
+
+
 def test_get_email_from_account():
     assert get_email_from_account('mi5aka') == \
         'commit_author: mi5aka | From: zakharova_a <mi5akatwi@gmail.com>'
