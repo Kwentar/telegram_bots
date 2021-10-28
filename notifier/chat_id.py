@@ -12,7 +12,7 @@ class Chat:
     images_info = read_info(file_name='notifier/resources/images_info.csv')
     images = images_info.index.values
 
-    def __init__(self, bot, chat_id, minutes_delta=60):
+    def __init__(self, bot, chat_id, minutes_delta=180):
         self.user_queue = PriorityQueue()
         self.bot = bot
         self.chat_id = chat_id

@@ -57,8 +57,8 @@ def generate_image(images_info,
 if __name__ == '__main__':
     images_info = read_info(file_name='notifier/resources/images_info.csv')
     img = generate_image(images_info,
-                         random.choice(images_info.index.values),
-                         'Тест',
+                         images_info.index.values[-1],
+                         'ТестТестТестТестТестТест',
                          font_path='notifier/resources/OpenSans-Semibold.ttf')
     img = cv2.imread(img)
     cv2.imshow('sfs', img)

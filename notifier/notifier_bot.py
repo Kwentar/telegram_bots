@@ -15,16 +15,16 @@ chat_manager = ChatIdManager()
 bot_name = '@animal_reminder_bot'
 
 
-def check_text(bot, message):
-    message_text = message['message']['text']
+def check_text(update, context):
+    message_text = update['message']['text']
 
-    if message.effective_chat.id < 0 and not message_text.startswith(bot_name):
+    if update.effective_chat.id < 0 and not message_text.startswith(bot_name):
         return
 
     try:
         logger.info(f"Message {message_text} from "
-                    f"{message['message']['from_user']['username']} "
-                    f"{message['message']['from_user']['first_name']}")
+                    f"{update['message']['from_user']['username']} "
+                    f"{update['message']['from_user']['first_name']}")
     except:
         pass
     if message_text.startswith(bot_name):
@@ -32,9 +32,9 @@ def check_text(bot, message):
     command, text = get_intent(message_text)
 
     if command == Modes.REMIND:
-        process_remind(bot, message.effective_chat.id, text)
+        process_remind(context.bot, update.effective_chat.id, text)
     else:
-        bot.send_message(message.effective_chat.id, help_string)
+        context.bot.send_message(update.effective_chat.id, help_string)
 
 
 def get_time_delta(chat_id):
@@ -61,51 +61,51 @@ def process_remind(bot, chat_id, text):
     logger.info(f'parsed result for remind command: {result}')
 
 
-def start(bot, message):
-    bot.send_message(message.effective_chat.id, help_string)
+def start(update, context):
+    context.bot.send_message(update.effective_chat.id, help_string)
 
 
-def remind(bot, message):
-    message_text = message['message']['text']
+def remind(update, context):
+    message_text = update['message']['text']
     _, text = get_intent(message_text)
     logger.info(f"parsed result: {message_text}")
-    process_remind(bot, message.effective_chat.id, text)
+    process_remind(context.bot, update.effective_chat.id, text)
 
 
-def get_time(bot, message):
-    chat_id = message.effective_chat.id
+def get_time(update, context):
+    chat_id = update.effective_chat.id
     if chat_id not in chat_manager:
-        chat_manager.add_item(bot, chat_id)
-    bot.send_message(message.effective_chat.id,
-                     str(chat_manager[chat_id].get_now()))
+        chat_manager.add_item(context.bot, chat_id)
+    context.bot.send_message(update.effective_chat.id,
+                             str(chat_manager[chat_id].get_now()))
 
 
-def set_time(bot, message):
-    message_text = message['message']['text']
-    chat_id = message.effective_chat.id
+def set_time(update, context):
+    message_text = update['message']['text']
+    chat_id = update.effective_chat.id
     try:
         value = int(message_text.split()[1])
         if chat_id not in chat_manager:
-            chat_manager.add_item(bot, chat_id, value)
+            chat_manager.add_item(context.bot, chat_id, value)
         else:
             chat_manager[chat_id].minutes_delta = value
         logger.info(f'set up new time delta for chat {chat_id} = {value}')
-        bot.send_message(message.effective_chat.id,
+        context.bot.send_message(update.effective_chat.id,
                          f'Время бота для вас: {chat_manager[chat_id].get_now()}')
     except:
-        bot.send_message(message.effective_chat.id,
+        context.bot.send_message(update.effective_chat.id,
                          'Неправильный аргумент, '
                          'синтаксис /set_time <количество минут>, например, '
-                         '/set_time 60 установит время GMT+3 (Москва)')
+                         '/set_time 180 установит время GMT+3 (Москва)')
 
 
-def get_stat(bot, message):
+def get_stat(update, context):
     try:
-        if message['message']['from_user']['username'] != 'Kwent':
-            bot.send_message(message.effective_chat.id,
+        if update['message']['from_user']['username'] != 'Kwent':
+            context.bot.send_message(update.effective_chat.id,
                              'Statistic is available only for God')
             return
-        bot.send_message(message.effective_chat.id,
+        context.bot.send_message(update.effective_chat.id,
                          chat_manager.get_stat_total())
     except:
         pass
@@ -125,7 +125,6 @@ if __name__ == '__main__':
     dispatcher = updater.dispatcher
 
     text_handler = MessageHandler(Filters.text, check_text)
-    dispatcher.add_handler(text_handler)
     start_handler = CommandHandler('start', start)
     remind_handler = CommandHandler('remind', remind)
     get_time_handler = CommandHandler('get_time', get_time)
@@ -135,7 +134,9 @@ if __name__ == '__main__':
     dispatcher.add_handler(remind_handler)
     dispatcher.add_handler(get_time_handler)
     dispatcher.add_handler(set_time_handler)
+    dispatcher.add_handler(get_stat_handler)
     dispatcher.add_error_handler(error)
+    dispatcher.add_handler(text_handler)
     updater.start_polling()
     print('Notifier Bot has started')
     updater.idle()
